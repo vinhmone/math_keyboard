@@ -14,12 +14,12 @@ import 'package:holding_gesture/holding_gesture.dart';
 class KeyboardButton extends StatefulWidget {
   /// Constructs a [KeyboardButton] widget.
   const KeyboardButton({
-    Key? key,
+    super.key,
     this.onTap,
     this.onHold,
     this.color,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// Called when the keyboard button is tapped.
   final VoidCallback? onTap;
@@ -34,10 +34,11 @@ class KeyboardButton extends StatefulWidget {
   final Widget child;
 
   @override
-  _KeyboardButtonState createState() => _KeyboardButtonState();
+  KeyboardButtonState createState() => KeyboardButtonState();
 }
 
-class _KeyboardButtonState extends State<KeyboardButton>
+/// State for [KeyboardButton].
+class KeyboardButtonState extends State<KeyboardButton>
     with SingleTickerProviderStateMixin {
   late final _animationController = AnimationController(
     duration: const Duration(milliseconds: 50),

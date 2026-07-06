@@ -117,10 +117,11 @@ class MathField extends StatefulWidget {
   final bool opensKeyboard;
 
   @override
-  _MathFieldState createState() => _MathFieldState();
+  MathFieldState createState() => MathFieldState();
 }
 
-class _MathFieldState extends State<MathField> with TickerProviderStateMixin {
+/// State for [MathField].
+class MathFieldState extends State<MathField> with TickerProviderStateMixin {
   late final _scrollController = ScrollController();
   late final _keyboardSlideController = AnimationController(
     duration: const Duration(milliseconds: 250),
@@ -534,13 +535,12 @@ class _MathFieldState extends State<MathField> with TickerProviderStateMixin {
 class _FieldPreview extends StatelessWidget {
   /// Constructs a [_FieldPreview].
   const _FieldPreview({
-    Key? key,
     required this.controller,
     required this.cursorOpacity,
     required this.hasFocus,
     required this.decoration,
     required this.scrollController,
-  }) : super(key: key);
+  });
 
   /// The controller for the math field.
   final MathFieldEditingController controller;

@@ -9,7 +9,7 @@ void main() {
 /// Example app demonstrating how to use the `math_keyboard` package.
 class ExampleApp extends StatelessWidget {
   /// Creates an [ExampleApp] widget.
-  const ExampleApp({Key? key}) : super(key: key);
+  const ExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +39,14 @@ class ExampleApp extends StatelessWidget {
 /// Widget for a page demonstrating how to use the `math_keyboard` package.
 class DemoPage extends StatefulWidget {
   /// Creates a [DemoPage] widget.
-  const DemoPage({Key? key}) : super(key: key);
+  const DemoPage({super.key});
 
   @override
-  _DemoPageState createState() => _DemoPageState();
+  DemoPageState createState() => DemoPageState();
 }
 
-class _DemoPageState extends State<DemoPage> {
+/// State for [DemoPage].
+class DemoPageState extends State<DemoPage> {
   var _currentIndex = 0;
 
   @override
@@ -114,7 +115,7 @@ class _DemoPageState extends State<DemoPage> {
 /// field for comparison.
 class _MathFieldTextFieldExample extends StatelessWidget {
   /// Constructs a [_MathFieldTextFieldExample] widget.
-  const _MathFieldTextFieldExample({Key? key}) : super(key: key);
+  const _MathFieldTextFieldExample();
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +138,7 @@ class _MathFieldTextFieldExample extends StatelessWidget {
                   expression = 'invalid input';
                 }
 
-                print('input expression: $value\n'
+                debugPrint('input expression: $value\n'
                     'converted expression: $expression');
               },
             ),
@@ -158,7 +159,7 @@ class _MathFieldTextFieldExample extends StatelessWidget {
 /// outside and automatically receives focus.
 class _ClearableAutofocusExample extends StatefulWidget {
   /// Constructs a [_ClearableAutofocusExample] widget.
-  const _ClearableAutofocusExample({Key? key}) : super(key: key);
+  const _ClearableAutofocusExample();
 
   @override
   _ClearableAutofocusExampleState createState() =>

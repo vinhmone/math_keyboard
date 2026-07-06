@@ -118,12 +118,11 @@ class TeXFunction extends TeX {
   /// case, the [TeXNode.parent] is set in the constructor body. If [argNodes]
   /// is passed empty (default), empty [TeXNode]s will be inserted for each
   /// arg.
-  TeXFunction(String expression, this.parent, this.args,
+  TeXFunction(super.expression, this.parent, this.args,
       [List<TeXNode>? argNodes])
       : assert(args.isNotEmpty, 'A function needs at least one argument.'),
         assert(argNodes == null || argNodes.length == args.length),
-        argNodes = argNodes ?? List.empty(growable: true),
-        super(expression) {
+        argNodes = argNodes ?? List.empty(growable: true) {
     if (this.argNodes.isEmpty) {
       for (var i = 0; i < args.length; i++) {
         this.argNodes.add(TeXNode(this));
@@ -183,7 +182,7 @@ class TeXFunction extends TeX {
 /// Class holding a single TeX expression.
 class TeXLeaf extends TeX {
   /// Constructs a [TeXLeaf].
-  const TeXLeaf(String expression) : super(expression);
+  const TeXLeaf(super.expression);
 
   @override
   String buildString({Color? cursorColor}) {

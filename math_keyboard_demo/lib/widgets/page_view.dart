@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:math_expressions/math_expressions.dart';
+import 'package:math_expressions/math_expressions.dart' hide Stack;
 import 'package:math_keyboard/math_keyboard.dart';
 
 /// Page view for presenting the features that math_keyboard has to offer.
 class DemoPageView extends StatefulWidget {
   /// Creates a [DemoPageView] widget.
-  const DemoPageView({Key? key}) : super(key: key);
+  const DemoPageView({super.key});
 
   @override
-  _DemoPageViewState createState() => _DemoPageViewState();
+  DemoPageViewState createState() => DemoPageViewState();
 }
 
-class _DemoPageViewState extends State<DemoPageView> {
+/// State for [DemoPageView].
+class DemoPageViewState extends State<DemoPageView> {
   late final _controller = PageController();
 
   int get _page {
@@ -35,6 +36,7 @@ class _DemoPageViewState extends State<DemoPageView> {
     super.dispose();
   }
 
+  /// Last page index used to detect page changes when scrolling.
   late int previousIndex = _page;
 
   void _handleScroll() {
@@ -149,9 +151,8 @@ class _DemoPageViewState extends State<DemoPageView> {
 
 class _Page extends StatelessWidget {
   const _Page({
-    Key? key,
     required this.child,
-  }) : super(key: key);
+  });
 
   final Widget child;
 
@@ -173,10 +174,9 @@ class _Page extends StatelessWidget {
 class _PageIndicator extends StatelessWidget {
   /// Constructs a [_PageIndicator] widget.
   const _PageIndicator({
-    Key? key,
     required this.selected,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   final bool selected;
 
@@ -217,7 +217,7 @@ class _PageIndicator extends StatelessWidget {
 }
 
 class _PrimaryPage extends StatefulWidget {
-  const _PrimaryPage({Key? key}) : super(key: key);
+  const _PrimaryPage();
 
   @override
   _PrimaryPageState createState() => _PrimaryPageState();
@@ -299,7 +299,7 @@ class _PrimaryPageState extends State<_PrimaryPage> {
 }
 
 class _InputDecorationPage extends StatelessWidget {
-  const _InputDecorationPage({Key? key}) : super(key: key);
+  const _InputDecorationPage();
 
   @override
   Widget build(BuildContext context) {
@@ -391,7 +391,7 @@ class _InputDecorationPage extends StatelessWidget {
 }
 
 class _ControllerPage extends StatefulWidget {
-  const _ControllerPage({Key? key}) : super(key: key);
+  const _ControllerPage();
 
   @override
   _ControllerPageState createState() => _ControllerPageState();
@@ -465,6 +465,7 @@ class _ControllerPageState extends State<_ControllerPage> {
                     await Clipboard.setData(ClipboardData(
                       text: _clipboardController.currentEditingValue(),
                     ));
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -565,9 +566,8 @@ class _ControllerPageState extends State<_ControllerPage> {
 
 class _AutofocusPage extends StatelessWidget {
   const _AutofocusPage({
-    Key? key,
     required this.autofocus,
-  }) : super(key: key);
+  });
 
   final bool autofocus;
 
@@ -615,7 +615,7 @@ class _AutofocusPage extends StatelessWidget {
 }
 
 class _FocusTreePage extends StatefulWidget {
-  const _FocusTreePage({Key? key}) : super(key: key);
+  const _FocusTreePage();
 
   @override
   _FocusTreePageState createState() => _FocusTreePageState();
@@ -762,7 +762,7 @@ class _FocusTreePageState extends State<_FocusTreePage> {
 }
 
 class _DecimalSeparatorPage extends StatefulWidget {
-  const _DecimalSeparatorPage({Key? key}) : super(key: key);
+  const _DecimalSeparatorPage();
 
   @override
   _DecimalSeparatorPageState createState() => _DecimalSeparatorPageState();
@@ -851,7 +851,7 @@ class _DecimalSeparatorPageState extends State<_DecimalSeparatorPage> {
 }
 
 class _MathExpressionsPage extends StatefulWidget {
-  const _MathExpressionsPage({Key? key}) : super(key: key);
+  const _MathExpressionsPage();
 
   @override
   _MathExpressionsPageState createState() => _MathExpressionsPageState();
@@ -884,8 +884,8 @@ class _MathExpressionsPageState extends State<_MathExpressionsPage> {
   void _calculateResult() {
     try {
       setState(() {
-        _result = _expression.evaluate(EvaluationType.REAL,
-            ContextModel()..bindVariableName('x', Number(_value)));
+        final context = ContextModel()..bindVariableName('x', Number(_value));
+        _result = RealEvaluator(context).evaluate(_expression).toDouble();
       });
     } catch (_) {}
   }
@@ -981,9 +981,9 @@ class _MathExpressionsPageState extends State<_MathExpressionsPage> {
                   keyboardType: MathKeyboardType.numberOnly,
                   onChanged: (value) {
                     try {
-                      _value = TeXParser(value)
-                          .parse()
-                          .evaluate(EvaluationType.REAL, ContextModel());
+                      _value = RealEvaluator()
+                          .evaluate(TeXParser(value).parse())
+                          .toDouble();
                       _calculateResult();
                     } catch (_) {}
                   },
@@ -1009,7 +1009,7 @@ class _MathExpressionsPageState extends State<_MathExpressionsPage> {
 }
 
 class _FormFieldPage extends StatelessWidget {
-  const _FormFieldPage({Key? key}) : super(key: key);
+  const _FormFieldPage();
 
   @override
   Widget build(BuildContext context) {
@@ -1050,9 +1050,7 @@ class _FormFieldPage extends StatelessWidget {
                     }
 
                     try {
-                      TeXParser(value)
-                          .parse()
-                          .evaluate(EvaluationType.REAL, ContextModel());
+                      RealEvaluator().evaluate(TeXParser(value).parse());
                       return null;
                     } catch (_) {
                       return 'Invalid expression (:';

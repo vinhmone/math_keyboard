@@ -21,7 +21,7 @@ import 'package:math_keyboard/src/widgets/math_keyboard.dart';
 class MathFormField extends FormField<String> {
   /// Creates a [FormField] that contains a [MathField].
   MathFormField({
-    Key? key,
+    super.key,
     this.controller,
     FocusNode? focusNode,
     InputDecoration decoration = const InputDecoration(),
@@ -30,16 +30,13 @@ class MathFormField extends FormField<String> {
     bool autofocus = false,
     ValueChanged<String>? onChanged,
     ValueChanged<String>? onFieldSubmitted,
-    AutovalidateMode autovalidateMode = AutovalidateMode.disabled,
-    FormFieldValidator<String>? validator,
+    AutovalidateMode super.autovalidateMode = AutovalidateMode.disabled,
+    super.validator,
   }) : super(
-          key: key,
           initialValue:
               controller != null ? controller.currentEditingValue() : '',
-          validator: validator,
-          autovalidateMode: autovalidateMode,
           builder: (FormFieldState<String> field) {
-            final state = field as _MathFormFieldState;
+            final state = field as MathFormFieldState;
 
             void onChangedHandler(String value) {
               field.didChange(value);
@@ -67,10 +64,11 @@ class MathFormField extends FormField<String> {
   final MathFieldEditingController? controller;
 
   @override
-  _MathFormFieldState createState() => _MathFormFieldState();
+  MathFormFieldState createState() => MathFormFieldState();
 }
 
-class _MathFormFieldState extends FormFieldState<String> {
+/// State for [MathFormField].
+class MathFormFieldState extends FormFieldState<String> {
   late MathFieldEditingController _controller;
 
   @override
@@ -113,12 +111,6 @@ class _MathFormFieldState extends FormFieldState<String> {
     super.dispose();
   }
 
-  @override
-  void didChange(String? value) {
-    super.didChange(value);
-
-    // todo: allow changing the value from outside of the controller.
-  }
 
   @override
   void reset() {

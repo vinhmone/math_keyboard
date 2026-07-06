@@ -27,7 +27,7 @@ enum MathKeyboardType {
 class MathKeyboard extends StatelessWidget {
   /// Constructs a [MathKeyboard].
   const MathKeyboard({
-    Key? key,
+    super.key,
     required this.controller,
     this.type = MathKeyboardType.expression,
     this.variables = const [],
@@ -39,7 +39,7 @@ class MathKeyboard extends StatelessWidget {
       left: 4,
       right: 4,
     ),
-  }) : super(key: key);
+  });
 
   /// The controller for editing the math field.
   ///
@@ -148,11 +148,10 @@ class MathKeyboard extends StatelessWidget {
 /// Widget that reports about the math keyboard body's bottom inset.
 class _KeyboardBody extends StatefulWidget {
   const _KeyboardBody({
-    Key? key,
     this.insetsState,
     this.slideAnimation,
     required this.child,
-  }) : super(key: key);
+  });
 
   final MathKeyboardViewInsetsState? insetsState;
 
@@ -232,10 +231,9 @@ class _KeyboardBodyState extends State<_KeyboardBody> {
 class _Variables extends StatelessWidget {
   /// Constructs a [_Variables] Widget.
   const _Variables({
-    Key? key,
     required this.controller,
     required this.variables,
-  }) : super(key: key);
+  });
 
   /// The editing controller for the math field that the variables are connected
   /// to.
@@ -284,12 +282,11 @@ class _Variables extends StatelessWidget {
 class _Buttons extends StatelessWidget {
   /// Constructs a [_Buttons] Widget.
   const _Buttons({
-    Key? key,
     required this.controller,
     this.page1,
     this.page2,
     this.onSubmit,
-  }) : super(key: key);
+  });
 
   /// The editing controller for the math field that the variables are connected
   /// to.
@@ -348,7 +345,7 @@ class _Buttons extends StatelessWidget {
                             flex: config.flex,
                             icon: controller.secondPage
                                 ? null
-                                : CustomKeyIcons.key_symbols,
+                                : CustomKeyIcons.keySymbols,
                             label: controller.secondPage ? '123' : null,
                             onTap: controller.togglePage,
                             highlightLevel: 1,
@@ -387,15 +384,13 @@ class _Buttons extends StatelessWidget {
 class _BasicButton extends StatelessWidget {
   /// Constructs a [_BasicButton].
   const _BasicButton({
-    Key? key,
     required this.flex,
     this.label,
     this.icon,
     this.onTap,
     this.asTex = false,
     this.highlightLevel = 0,
-  })  : assert(label != null || icon != null),
-        super(key: key);
+  })  : assert(label != null || icon != null);
 
   /// The flexible flex value.
   final int? flex;
@@ -469,12 +464,11 @@ class _BasicButton extends StatelessWidget {
 class _NavigationButton extends StatelessWidget {
   /// Constructs a [_NavigationButton].
   const _NavigationButton({
-    Key? key,
     required this.flex,
     this.icon,
     this.iconSize = 36,
     this.onTap,
-  }) : super(key: key);
+  });
 
   /// The flexible flex value.
   final int? flex;
@@ -510,10 +504,9 @@ class _NavigationButton extends StatelessWidget {
 class _VariableButton extends StatelessWidget {
   /// Constructs a [_VariableButton] widget.
   const _VariableButton({
-    Key? key,
     required this.name,
     this.onTap,
-  }) : super(key: key);
+  });
 
   /// The variable name.
   final String name;

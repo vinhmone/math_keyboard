@@ -48,9 +48,9 @@ import 'package:math_keyboard/math_keyboard.dart';
 class MathKeyboardViewInsets extends StatefulWidget {
   /// Creates a [MathKeyboardViewInsets] widget around the [child] widget.
   const MathKeyboardViewInsets({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// The child widget tree that the math keyboard view insets should report to.
   ///
@@ -139,10 +139,10 @@ class MathKeyboardViewInsetsQuery extends InheritedWidget {
   /// Creates a [MathKeyboardViewInsetsQuery] that provides the [bottomInset] to
   /// the [child] tree.
   const MathKeyboardViewInsetsQuery({
-    Key? key,
+    super.key,
     required this.bottomInset,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   /// Depends on and returns an ancestor [MathKeyboardViewInsetsQuery].
   static MathKeyboardViewInsetsQuery of(BuildContext context) {

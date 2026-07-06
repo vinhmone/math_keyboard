@@ -11,9 +11,9 @@ import 'package:url_launcher/url_launcher_string.dart';
 class DemoScaffold extends StatelessWidget {
   /// Creates a [DemoScaffold] widget.
   const DemoScaffold({
-    Key? key,
+    super.key,
     required this.onToggleBrightness,
-  }) : super(key: key);
+  });
 
   /// Called when the brightness toggle is tapped.
   final void Function() onToggleBrightness;

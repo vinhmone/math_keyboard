@@ -33,12 +33,9 @@ class BasicKeyboardButtonConfig extends KeyboardButtonConfig {
     this.args,
     this.asTex = false,
     this.highlighted = false,
-    List<String> keyboardCharacters = const [],
-    int? flex,
-  }) : super(
-          flex: flex,
-          keyboardCharacters: keyboardCharacters,
-        );
+    super.keyboardCharacters,
+    super.flex,
+  });
 
   /// The label of the button.
   final String label;
@@ -59,31 +56,31 @@ class BasicKeyboardButtonConfig extends KeyboardButtonConfig {
 /// Class representing a button configuration of the Delete Button.
 class DeleteButtonConfig extends KeyboardButtonConfig {
   /// Constructs a [DeleteButtonConfig].
-  DeleteButtonConfig({int? flex}) : super(flex: flex);
+  DeleteButtonConfig({super.flex});
 }
 
 /// Class representing a button configuration of the Previous Button.
 class PreviousButtonConfig extends KeyboardButtonConfig {
   /// Constructs a [DeleteButtonConfig].
-  PreviousButtonConfig({int? flex}) : super(flex: flex);
+  PreviousButtonConfig({super.flex});
 }
 
 /// Class representing a button configuration of the Next Button.
 class NextButtonConfig extends KeyboardButtonConfig {
   /// Constructs a [DeleteButtonConfig].
-  NextButtonConfig({int? flex}) : super(flex: flex);
+  NextButtonConfig({super.flex});
 }
 
 /// Class representing a button configuration of the Submit Button.
 class SubmitButtonConfig extends KeyboardButtonConfig {
   /// Constructs a [SubmitButtonConfig].
-  SubmitButtonConfig({int? flex}) : super(flex: flex);
+  SubmitButtonConfig({super.flex});
 }
 
 /// Class representing a button configuration of the Page Toggle Button.
 class PageButtonConfig extends KeyboardButtonConfig {
   /// Constructs a [PageButtonConfig].
-  const PageButtonConfig({int? flex}) : super(flex: flex);
+  const PageButtonConfig({super.flex});
 }
 
 /// List of keyboard button configs for the digits from 0-9.

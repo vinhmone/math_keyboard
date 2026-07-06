@@ -6,11 +6,11 @@ class LinkButton extends StatelessWidget {
   /// Constructs a [LinkButton] from a [label], a [url], and an optional
   /// [child].
   const LinkButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.url,
     this.child,
-  }) : super(key: key);
+  });
 
   /// Label for the button.
   final String label;
