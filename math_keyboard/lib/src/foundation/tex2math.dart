@@ -378,9 +378,9 @@ class TeXParser {
           result.add(Root.sqrt(result.removeLast()));
           break;
         case r'\nrt':
-          left = result.removeLast();
-          right = result.removeLast();
-          result.add(left ^ (Number(1.0) / right));
+          final arg = result.removeLast();
+          final index = result.removeLast();
+          result.add(Root(index, arg));
           break;
         case r'\abs':
           result.add(Abs(result.removeLast()));
@@ -412,7 +412,7 @@ class TeXParser {
 
   /// Checks whether factorial can be calculated.
   void addFactorial(List<Expression> result) {
-    final t = result.removeLast().evaluate(EvaluationType.REAL, ContextModel());
+    final t = RealEvaluator().evaluate(result.removeLast());
     if (t.ceil() == t.floor() && t >= 0 && t < 20) {
       var a = t.toInt();
       var y = 1;

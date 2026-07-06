@@ -3,6 +3,19 @@ import 'dart:math' as math;
 import 'package:math_expressions/math_expressions.dart';
 import 'package:math_keyboard/src/foundation/node.dart';
 
+bool _isSquareRootIndex(Expression n) {
+  if (n is Number) {
+    return (n.value as num) == 2;
+  }
+  if (n is BoundVariable) {
+    final value = n.value;
+    if (value is Number) {
+      return (value.value as num) == 2;
+    }
+  }
+  return false;
+}
+
 /// Converts the input [mathExpression] to a [TeXNode].
 TeXNode convertMathExpressionToTeXNode(Expression mathExpression) {
   // The AST is not properly built (as in it is not well designed) because
@@ -140,7 +153,10 @@ List<TeX> _convertToTeX(Expression mathExpression, TeXNode parent) {
       ];
     }
     if (mathExpression is Root) {
-      if (mathExpression.n == 2) {
+      final n = mathExpression.n;
+      final isSquareRoot =
+          mathExpression is Sqrt || _isSquareRootIndex(n);
+      if (isSquareRoot) {
         return [
           TeXFunction(
             r'\sqrt',
@@ -156,7 +172,7 @@ List<TeX> _convertToTeX(Expression mathExpression, TeXNode parent) {
           parent,
           const [TeXArg.brackets, TeXArg.braces],
           [
-            convertMathExpressionToTeXNode(Number(mathExpression.n)),
+            convertMathExpressionToTeXNode(n),
             convertMathExpressionToTeXNode(mathExpression.arg),
           ],
         ),

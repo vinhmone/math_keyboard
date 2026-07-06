@@ -175,7 +175,7 @@ void main() {
 
     test('nRoot', () {
       const tex = r'2 \times  \sqrt[3]{{x}}';
-      const exp = '(2.0 * (x^(1.0 / 3.0)))';
+      const exp = '2*nrt(3,x)';
       expect(
         TeXParser(tex).parse().toString(),
         ShuntingYardParser().parse(exp).toString(),
