@@ -30,6 +30,7 @@ class MathFormField extends FormField<String> {
     bool autofocus = false,
     ValueChanged<String>? onChanged,
     ValueChanged<String>? onFieldSubmitted,
+    ThemeMode themeMode = ThemeMode.system,
     AutovalidateMode super.autovalidateMode = AutovalidateMode.disabled,
     super.validator,
   }) : super(
@@ -54,6 +55,7 @@ class MathFormField extends FormField<String> {
               autofocus: autofocus,
               onChanged: onChangedHandler,
               onSubmitted: onFieldSubmitted,
+              themeMode: themeMode,
             );
           },
         );

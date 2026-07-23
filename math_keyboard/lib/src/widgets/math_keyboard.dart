@@ -6,6 +6,7 @@ import 'package:math_keyboard/src/foundation/keyboard_button.dart';
 import 'package:math_keyboard/src/widgets/decimal_separator.dart';
 import 'package:math_keyboard/src/widgets/keyboard_button.dart';
 import 'package:math_keyboard/src/widgets/math_field.dart';
+import 'package:math_keyboard/src/widgets/math_keyboard_theme.dart';
 import 'package:math_keyboard/src/widgets/view_insets.dart';
 
 /// Enumeration for the types of keyboard that a math keyboard can adopt.
@@ -39,6 +40,7 @@ class MathKeyboard extends StatelessWidget {
       left: 4,
       right: 4,
     ),
+    this.themeMode = ThemeMode.system,
   });
 
   /// The controller for editing the math field.
@@ -72,14 +74,22 @@ class MathKeyboard extends StatelessWidget {
   /// Defaults to `const EdgeInsets.only(bottom: 4, left: 4, right: 4),`.
   final EdgeInsets padding;
 
+  /// The theme mode that controls the keyboard's light/dark appearance.
+  ///
+  /// Defaults to [ThemeMode.system], which follows the platform brightness.
+  final ThemeMode themeMode;
+
   @override
   Widget build(BuildContext context) {
     final curvedSlideAnimation = CurvedAnimation(
       parent: slideAnimation ?? AlwaysStoppedAnimation(1),
       curve: Curves.ease,
     );
+    final colors = MathKeyboardColors.resolve(context, themeMode);
 
-    return SlideTransition(
+    return MathKeyboardColorsProvider(
+      colors: colors,
+      child: SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(0, 1),
         end: const Offset(0, 0),
@@ -93,7 +103,7 @@ class MathKeyboard extends StatelessWidget {
             child: Material(
               type: MaterialType.transparency,
               child: ColoredBox(
-                color: Colors.black,
+                color: colors.background,
                 child: SafeArea(
                   top: false,
                   child: _KeyboardBody(
@@ -140,6 +150,7 @@ class MathKeyboard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -244,9 +255,10 @@ class _Variables extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = MathKeyboardColorsProvider.of(context);
     return Container(
       height: 54,
-      color: Colors.grey[900],
+      color: colors.accent,
       child: AnimatedBuilder(
         animation: controller,
         builder: (context, child) {
@@ -258,7 +270,7 @@ class _Variables extends StatelessWidget {
                 child: Container(
                   height: 24,
                   width: 1,
-                  color: Colors.white,
+                  color: colors.separator,
                 ),
               );
             },
@@ -412,18 +424,19 @@ class _BasicButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = MathKeyboardColorsProvider.of(context);
     Widget result;
     if (label == null) {
       result = Icon(
         icon,
-        color: Colors.white,
+        color: colors.foreground,
       );
     } else if (asTex) {
       result = Math.tex(
         label!,
         options: MathOptions(
           fontSize: 22,
-          color: Colors.white,
+          color: colors.foreground,
         ),
       );
     } else {
@@ -436,9 +449,9 @@ class _BasicButton extends StatelessWidget {
 
       result = Text(
         symbol!,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 22,
-          color: Colors.white,
+          color: colors.foreground,
         ),
       );
     }
@@ -448,7 +461,7 @@ class _BasicButton extends StatelessWidget {
       color: highlightLevel > 1
           ? Theme.of(context).colorScheme.secondary
           : highlightLevel == 1
-              ? Colors.grey[900]
+              ? colors.accent
               : null,
       child: result,
     );
@@ -484,15 +497,16 @@ class _NavigationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = MathKeyboardColorsProvider.of(context);
     return Expanded(
       flex: flex ?? 2,
       child: KeyboardButton(
         onTap: onTap,
         onHold: onTap,
-        color: Colors.grey[900],
+        color: colors.accent,
         child: Icon(
           icon,
-          color: Colors.white,
+          color: colors.foreground,
           size: iconSize,
         ),
       ),
@@ -516,13 +530,14 @@ class _VariableButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = MathKeyboardColorsProvider.of(context);
     return KeyboardButton(
       onTap: onTap,
       child: Math.tex(
         name,
         options: MathOptions(
           fontSize: 22,
-          color: Colors.white,
+          color: colors.foreground,
         ),
       ),
     );

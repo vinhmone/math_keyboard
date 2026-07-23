@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:holding_gesture/holding_gesture.dart';
+import 'package:math_keyboard/src/widgets/math_keyboard_theme.dart';
 
 /// Widget for keyboard buttons of the math keyboard.
 ///
@@ -75,6 +76,7 @@ class KeyboardButtonState extends State<KeyboardButton>
 
   @override
   Widget build(BuildContext context) {
+    final tapOverlay = MathKeyboardColorsProvider.of(context).tapOverlay;
     Widget result = MouseRegion(
       onEnter: (_) => _handleHover(true),
       onExit: (_) => _handleHover(false),
@@ -106,7 +108,7 @@ class KeyboardButtonState extends State<KeyboardButton>
                 return DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: Colors.white.withValues(
+                    color: tapOverlay.withValues(
                       alpha: Curves.easeInOut
                               .transform(_animationController.value) /
                           3,

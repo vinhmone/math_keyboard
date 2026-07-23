@@ -27,6 +27,7 @@ class MathField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.opensKeyboard = true,
+    this.themeMode = ThemeMode.system,
   });
 
   /// The controller for the math field.
@@ -115,6 +116,11 @@ class MathField extends StatefulWidget {
   ///
   /// Defaults to `true`.
   final bool opensKeyboard;
+
+  /// The theme mode that controls the keyboard's light/dark appearance.
+  ///
+  /// Defaults to [ThemeMode.system], which follows the platform brightness.
+  final ThemeMode themeMode;
 
   @override
   MathFieldState createState() => MathFieldState();
@@ -335,6 +341,7 @@ class MathFieldState extends State<MathField> with TickerProviderStateMixin {
             // overlay context does not have the ancestor state.
             insetsState: MathKeyboardViewInsetsState.of(this.context),
             slideAnimation: _keyboardSlideController,
+            themeMode: widget.themeMode,
           ),
         );
       },
