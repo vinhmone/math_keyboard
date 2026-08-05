@@ -1,4 +1,4 @@
-## Unreleased
+## 1.0.1
 
 * Added an `allowedTools` parameter to `MathField`, `MathFormField`, and `MathKeyboard` for
   restricting which math tools/formulas are available, along with a new `MathKeyboardTool` enum.
