@@ -647,5 +647,60 @@ void main() {
 
       expect(renderedFontSize(tester), 18);
     });
+
+    // The field draws its own hint inside its scroll view; the decorator's
+    // hint stays hidden.
+    double hintFontSize(WidgetTester tester) => tester
+        .widget<Text>(
+          find.descendant(
+            of: find.byType(SingleChildScrollView),
+            matching: find.text('Answer'),
+          ),
+        )
+        .style!
+        .fontSize!;
+
+    testWidgets('sizes the hint text to match the math', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const MathField(
+            fontSize: 18,
+            decoration: InputDecoration(hintText: 'Answer'),
+          ),
+        ),
+      );
+
+      expect(hintFontSize(tester), 18);
+    });
+
+    testWidgets('keeps the theme hint size without a font size', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(const MathField(decoration: InputDecoration(hintText: 'Answer'))),
+      );
+
+      final context = tester.element(find.byType(MathField));
+      expect(
+        hintFontSize(tester),
+        Theme.of(context).textTheme.titleMedium!.fontSize,
+      );
+    });
+
+    testWidgets('lets an explicit hintStyle font size win', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const MathField(
+            fontSize: 18,
+            decoration: InputDecoration(
+              hintText: 'Answer',
+              hintStyle: TextStyle(fontSize: 12),
+            ),
+          ),
+        ),
+      );
+
+      expect(hintFontSize(tester), 12);
+    });
   });
 }

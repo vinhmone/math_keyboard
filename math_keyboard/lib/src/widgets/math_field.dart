@@ -47,6 +47,10 @@ class MathField extends StatefulWidget {
   /// [MathOptions] to its [Math] widget, so the ambient text scale is *not*
   /// applied for you — include it in this value if you want the field to
   /// follow it.
+  ///
+  /// The hint text takes the same size, unless the
+  /// [InputDecoration.hintStyle] of [decoration] sets its own font size. When
+  /// `null`, the hint keeps the theme's size.
   final double? fontSize;
 
   /// The controller for the math field.
@@ -922,12 +926,16 @@ class _FieldPreview extends StatelessWidget {
   }
 
   // Adapted from InputDecorator._getInlineStyle.
+  //
+  // The hint takes [fontSize] so it matches the math it stands in for. An
+  // explicit font size in the decoration's hintStyle still wins.
   TextStyle _getHintStyle(ThemeData themeData) {
     return themeData.textTheme.titleMedium!
         .copyWith(
           color: decoration.enabled
               ? themeData.hintColor
               : themeData.disabledColor,
+          fontSize: fontSize,
         )
         .merge(decoration.hintStyle);
   }
