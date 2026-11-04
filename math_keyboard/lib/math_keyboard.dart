@@ -1,8 +1,9 @@
+export 'package:math_keyboard/src/foundation/decimal_separator.dart';
 export 'package:math_keyboard/src/foundation/keyboard_button.dart'
     show MathKeyboardTool;
 export 'package:math_keyboard/src/foundation/math2tex.dart';
+export 'package:math_keyboard/src/foundation/math_keyboard_semantics.dart';
 export 'package:math_keyboard/src/foundation/tex2math.dart';
-export 'package:math_keyboard/src/widgets/decimal_separator.dart';
 export 'package:math_keyboard/src/widgets/math_field.dart';
 export 'package:math_keyboard/src/widgets/math_form_field.dart';
 export 'package:math_keyboard/src/widgets/math_keyboard.dart';
