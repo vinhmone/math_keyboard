@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 import 'package:math_keyboard/src/custom_key_icons/custom_key_icons.dart';
+import 'package:math_keyboard/src/widgets/keyboard_button.dart';
 
 Widget _wrap(Widget child) {
   return MaterialApp(
@@ -93,6 +94,86 @@ void main() {
       expect(find.text('7'), findsOneWidget);
       // No page toggle since page 2 has no allowed tools.
       expect(find.byIcon(CustomKeyIcons.keySymbols), findsNothing);
+    });
+  });
+
+  group('MathKeyboard allowedTools in landscape', () {
+    Future<SemanticsHandle> pumpLandscape(
+      WidgetTester tester, {
+      required Set<MathKeyboardTool> allowedTools,
+      List<String> variables = const [],
+    }) async {
+      final handle = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(800, 400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _wrap(
+          MathKeyboard(
+            controller: MathFieldEditingController(),
+            allowedTools: allowedTools,
+            variables: variables,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return handle;
+    }
+
+    testWidgets('drops the empty formula column when no function is allowed', (
+      tester,
+    ) async {
+      final handle = await pumpLandscape(tester, allowedTools: const {});
+
+      expect(tester.takeException(), isNull);
+      expect(find.bySemanticsLabel('Formula'), findsNothing);
+      expect(find.bySemanticsLabel('Variables'), findsNothing);
+      expect(find.bySemanticsLabel('Numbers'), findsOneWidget);
+      expect(find.byIcon(Icons.keyboard_return), findsOneWidget);
+      // The numbers take the width the formula column used to hold.
+      final keyboardWidth = tester.getSize(find.byType(MathKeyboard)).width;
+      expect(
+        tester.getSize(find.bySemanticsLabel('Numbers')).width,
+        greaterThan(keyboardWidth * 0.75),
+      );
+
+      handle.dispose();
+    });
+
+    testWidgets('keeps the variables when no function is allowed', (
+      tester,
+    ) async {
+      final handle = await pumpLandscape(
+        tester,
+        allowedTools: const {},
+        variables: const ['x'],
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.bySemanticsLabel('Formula'), findsNothing);
+      expect(find.bySemanticsLabel('Variables'), findsOneWidget);
+      expect(find.bySemanticsLabel('Numbers'), findsOneWidget);
+
+      handle.dispose();
+    });
+
+    testWidgets('shows only the allowed functions', (tester) async {
+      final handle = await pumpLandscape(
+        tester,
+        allowedTools: const {MathKeyboardTool.sin, MathKeyboardTool.add},
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.bySemanticsLabel('Formula'), findsOneWidget);
+      expect(find.bySemanticsLabel('sine'), findsOneWidget);
+      expect(find.bySemanticsLabel('cosine'), findsNothing);
+      // The number section is filtered too: + stays, × and ( go.
+      expect(find.widgetWithText(KeyboardButton, '+'), findsOneWidget);
+      expect(find.widgetWithText(KeyboardButton, '×'), findsNothing);
+      expect(find.widgetWithText(KeyboardButton, '('), findsNothing);
+      expect(find.widgetWithText(KeyboardButton, '7'), findsOneWidget);
+
+      handle.dispose();
     });
   });
 

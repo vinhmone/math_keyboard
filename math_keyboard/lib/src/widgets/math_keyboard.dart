@@ -99,7 +99,8 @@ class MathKeyboard extends StatelessWidget {
   /// Note that the digits `0`-`9` and the structural keys (delete, navigation,
   /// submit and the page toggle) are always available and cannot be disabled.
   /// If no tool on the second (function) page is allowed, the page toggle is
-  /// hidden and the keyboard shows a single page.
+  /// hidden and the keyboard shows a single page. In landscape, the formula
+  /// section is then dropped and the numbers fill its width.
   final Set<MathKeyboardTool>? allowedTools;
 
   /// The theme mode that controls the keyboard's light/dark appearance.
@@ -1050,6 +1051,21 @@ class _LandscapeButtons extends StatelessWidget {
         Widget ordered(double order, Widget child) =>
             FocusTraversalOrder(order: NumericFocusOrder(order), child: child);
 
+        final numbersAndSubmit = <Widget>[
+          Expanded(flex: 256, child: numbersGroup),
+          SizedBox(width: style.horizontalPadding),
+          ordered(300, submitGroup),
+        ];
+
+        // When allowedTools leaves no function, an empty "Formula" region and
+        // its column would only waste space. Drop them, let the numbers fill
+        // the width, and keep any variables in a row above the numbers.
+        if (functionRows.isEmpty) {
+          final numbersRow = Row(children: numbersAndSubmit);
+          if (variables.isEmpty) return numbersRow;
+          return column([ordered(100, variablesGroup), numbersRow]);
+        }
+
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -1058,9 +1074,7 @@ class _LandscapeButtons extends StatelessWidget {
               child: column([ordered(100, variablesGroup), functionsGroup]),
             ),
             SizedBox(width: style.horizontalPadding),
-            Expanded(flex: 256, child: numbersGroup),
-            SizedBox(width: style.horizontalPadding),
-            ordered(300, submitGroup),
+            ...numbersAndSubmit,
           ],
         );
       },
