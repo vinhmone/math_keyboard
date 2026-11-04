@@ -1,3 +1,43 @@
+## 1.1.0
+
+* Synced with upstream `simpleclub/math_keyboard` 0.4.0: the redesigned keyboard
+  (`MathKeyboardStyle` / `MathKeyboardTheme`), accessibility (`MathKeyboardSemantics`,
+  keyboard navigation, landmarks), the landscape layout, large-text magnification, and the
+  configurable `DecimalSeparator`. See 0.4.0 below.
+* Kept the fork's light/dark keyboard: `themeMode` on `MathField`, `MathFormField`, and
+  `MathKeyboard` (default `ThemeMode.system`) now picks a light or dark `MathKeyboardStyle` built
+  from the `MathKeyboardColors` palettes (`MathKeyboardStyle.resolve` / `fromColors`). An explicit
+  `style` or a `MathKeyboardTheme` style still wins.
+* **Breaking:** `MathKeyboardTheme.style` is now nullable (default `null`), so a theme that only sets
+  semantics or the decimal separator keeps the light/dark look. `MathKeyboardTheme.styleOf` still
+  returns `MathKeyboardStyle.fallback` when no style is set; the new `maybeStyleOf` returns `null`.
+* **Breaking:** `MathKeyboardColorsProvider` and `MathKeyboardColors.separator` are removed (the
+  redesigned keyboard reads its colours from the style and has no variable divider).
+  `MathKeyboardColors` gains `focus`.
+* Kept the fork's `allowedTools` / `MathKeyboardTool` (now also applied to the landscape layout)
+  and the number-only input validation.
+* Kept the fork's newer dependencies (`math_expressions` ^3.1.0, `petitparser` ^7.0.2,
+  `flutter_lints`).
+* Fixed: a `MathField` keyboard with `ThemeMode.system` follows a platform brightness change while
+  it is open. The field forwards only an explicit or themed style, and the keyboard resolves
+  `themeMode` in its own context (as in 1.0.1).
+* Fixed: an open `MathField` keyboard now rebuilds when the field gets a new `style`, `themeMode`,
+  or other argument, or when a `MathKeyboardTheme` or locale above the field changes. Before, the
+  change showed only the next time the keyboard opened.
+* Fixed: nested `MathKeyboardTheme`s. A value that the nearest theme leaves `null` now comes from the
+  next theme up the tree that sets it, so a semantics-only theme inside a styled theme keeps the
+  outer style. This applies to `maybeStyleOf`, `styleOf`, `semanticsOf`, and `decimalSeparatorOf`.
+  **Breaking:** `MathKeyboardTheme.semantics` is now nullable (default `null`, still
+  `MathKeyboardSemantics.fallback` through `semanticsOf`), so a style-only theme no longer hides the
+  semantics of an outer theme.
+  **Breaking:** for the same reason, an inner `MathKeyboardTheme(style: null)` or
+  `decimalSeparator: null` no longer clears an outer value for its subtree (before, the subtree fell
+  back to `themeMode` or the locale). To override an outer value, pass an explicit one, for example
+  `MathKeyboardStyle.resolve(context, ThemeMode.light)` or `DecimalSeparator.of(context)`.
+* Fixed: in landscape, when `allowedTools` leaves no function, the keyboard no longer shows an empty
+  "Formula" region and column. The numbers fill the width, and any variables sit in a narrow column
+  on the leading side, so the keyboard keeps its height.
+
 ## 1.0.1
 
 * Added an `allowedTools` parameter to `MathField`, `MathFormField`, and `MathKeyboard` for
@@ -5,6 +45,45 @@
 * Number-only fields (`MathKeyboardType.numberOnly`) now validate and format input into well-formed
   numbers: a single leading minus, a single decimal point, a leading zero for bare decimals
   (`.5` → `0.5`) and stripping of redundant leading zeros (`007` → `7`).
+
+## 0.4.0
+
+* Redesign the on-screen keyboard with a configurable theme
+  (`MathKeyboardStyle` / `MathKeyboardTheme`); the default appearance changes.
+* Add first-class accessibility:
+  * Localizable screen-reader strings via `MathKeyboardSemantics`
+    (carried on `MathKeyboardTheme` and per-field).
+  * WAI-ARIA composite keyboard navigation: tab moves between the keys as
+    ordinary buttons and leaves the keyboard at the ends without trapping
+    focus, the arrow keys additionally move across the grid, and escape
+    dismisses it.
+  * Responsive landscape layout showing the functions and numbers side by side
+    with a dedicated submit key.
+  * Section landmark regions (variables, formula, numbers, submit) so screen
+    readers can jump between them.
+  * The math field opens the keyboard from an accessibility activation.
+  * Numbers are announced as numbers: the digits and the decimal separator of
+    one number are exposed as a single token ("1,5", "23") instead of
+    space-separated leaves, which screen readers spelled out digit by digit
+    while dropping the separator ("1 5").
+  * The cursor announcements name the decimal separator as a word ("before
+    point", from the `tokenMappings` of `MathKeyboardSemantics`), because a
+    bare `.` embedded in a sentence is dropped as punctuation.
+* Add `large_content_viewer` dependency for long-press magnification of keys at
+  large text sizes.
+* Make the decimal separator configurable via the new `DecimalSeparator` enum,
+  on `MathKeyboardTheme` or as an argument to `MathField`, `MathFormField`, and
+  `MathKeyboard`, instead of always deriving it from the locale. Defaults to
+  `null`, which keeps the previous locale-based behavior. The separator only
+  affects what is displayed and announced; the TeX reported by `onChanged` and
+  `onSubmitted` keeps using `.`. `DecimalSeparator.applyTo` localizes such a
+  value for rendering.
+* **Breaking:** `decimalSeparator(BuildContext)` is now `DecimalSeparator.of`,
+  returning the enum. It no longer throws an `ArgumentError` for locales `intl`
+  does not know, and locales that use neither of the two markers SI and ISO
+  recognize (`ar_EG`, `fa`, `ps`, which use the Arabic decimal separator) now
+  fall back to `.` instead of displaying a separator `TeXParser` cannot read.
+* Requires Flutter 3.35.1 / Dart 3.9.
 
 ## 0.3.3
 

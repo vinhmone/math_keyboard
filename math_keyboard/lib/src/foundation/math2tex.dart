@@ -86,11 +86,7 @@ List<TeX> _convertToTeX(Expression mathExpression, TeXNode parent) {
       throw UnimplementedError();
     }
     // Wrap with parentheses to keep precedence.
-    return [
-      TeXLeaf('('),
-      ...result,
-      TeXLeaf(')'),
-    ];
+    return [TeXLeaf('('), ...result, TeXLeaf(')')];
   }
   if (mathExpression is Literal) {
     if (mathExpression is Number) {
@@ -108,14 +104,10 @@ List<TeX> _convertToTeX(Expression mathExpression, TeXNode parent) {
     }
     if (mathExpression is Variable) {
       if (mathExpression is BoundVariable) {
-        return [
-          ..._convertToTeX(mathExpression.value, parent),
-        ];
+        return [..._convertToTeX(mathExpression.value, parent)];
       }
 
-      return [
-        TeXLeaf('{${mathExpression.name}}'),
-      ];
+      return [TeXLeaf('{${mathExpression.name}}')];
     }
 
     throw UnimplementedError();
