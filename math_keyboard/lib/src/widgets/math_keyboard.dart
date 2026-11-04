@@ -566,6 +566,7 @@ class _Variables extends StatelessWidget {
     required this.fontSize,
     required this.keyHeight,
     this.leadingPadding,
+    this.direction = Axis.horizontal,
   });
 
   /// The editing controller for the math field that the variables are connected
@@ -588,10 +589,80 @@ class _Variables extends StatelessWidget {
   final double keyHeight;
 
   /// The leading inset of the row; defaults to [MathKeyboardStyle.horizontalPadding].
+  ///
+  /// Only used by a horizontal row.
   final double? leadingPadding;
+
+  /// The direction the keys run in.
+  ///
+  /// A horizontal row (the default) is one key high. A vertical column fills
+  /// the height it is given, one key per row, and scrolls when the keys do not
+  /// fit.
+  final Axis direction;
+
+  /// The key that inserts the variable at [index].
+  Widget _key(int index) {
+    return Builder(
+      builder: (itemContext) => KeyboardButton(
+        keyStyle: style.neutralKey,
+        borderRadius: style.keyBorderRadius,
+        padding: style.keyPadding,
+        focusColor: style.focusBorderColor,
+        focusWidth: style.focusBorderWidth,
+        semanticsLabel: semantics.variableLabel(variables[index]),
+        onFocusChange: (focused) {
+          if (!focused) return;
+          // Keep the focused variable visible under keyboard and
+          // switch-access navigation.
+          Scrollable.ensureVisible(
+            itemContext,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 100),
+          );
+        },
+        onTap: () => controller.addLeaf('{${variables[index]}}'),
+        largeContentThreshold: style.largeContentViewerThreshold,
+        largeContent: style.largeContentViewerEnabled
+            ? Math.tex(
+                variables[index],
+                options: MathOptions(
+                  fontSize: fontSize * style.largeContentLabelScale,
+                  color: style.foregroundColor,
+                ),
+              )
+            : null,
+        child: Math.tex(
+          variables[index],
+          options: MathOptions(
+            fontSize: fontSize,
+            color: style.foregroundColor,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (direction == Axis.vertical) {
+      return AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          return ListView.separated(
+            // Not the host's primary scroll view: never attach to the
+            // PrimaryScrollController of an enclosing Scaffold.
+            primary: false,
+            itemCount: variables.length,
+            padding: EdgeInsets.zero,
+            separatorBuilder: (context, index) =>
+                SizedBox(height: style.rowSpacing),
+            itemBuilder: (context, index) =>
+                SizedBox(height: keyHeight, child: _key(index)),
+          );
+        },
+      );
+    }
+
     final leftPadding = leadingPadding ?? style.horizontalPadding;
     return SizedBox(
       height: keyHeight,
@@ -618,52 +689,7 @@ class _Variables extends StatelessWidget {
                 separatorBuilder: (context, index) =>
                     SizedBox(width: style.rowSpacing),
                 itemBuilder: (context, index) {
-                  return SizedBox(
-                    width: keyWidth,
-                    child: Builder(
-                      builder: (itemContext) => KeyboardButton(
-                        keyStyle: style.neutralKey,
-                        borderRadius: style.keyBorderRadius,
-                        padding: style.keyPadding,
-                        focusColor: style.focusBorderColor,
-                        focusWidth: style.focusBorderWidth,
-                        semanticsLabel: semantics.variableLabel(
-                          variables[index],
-                        ),
-                        onFocusChange: (focused) {
-                          if (!focused) return;
-                          // Keep the focused variable visible under keyboard and
-                          // switch-access navigation.
-                          Scrollable.ensureVisible(
-                            itemContext,
-                            alignment: 0.5,
-                            duration: const Duration(milliseconds: 100),
-                          );
-                        },
-                        onTap: () =>
-                            controller.addLeaf('{${variables[index]}}'),
-                        largeContentThreshold:
-                            style.largeContentViewerThreshold,
-                        largeContent: style.largeContentViewerEnabled
-                            ? Math.tex(
-                                variables[index],
-                                options: MathOptions(
-                                  fontSize:
-                                      fontSize * style.largeContentLabelScale,
-                                  color: style.foregroundColor,
-                                ),
-                              )
-                            : null,
-                        child: Math.tex(
-                          variables[index],
-                          options: MathOptions(
-                            fontSize: fontSize,
-                            color: style.foregroundColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
+                  return SizedBox(width: keyWidth, child: _key(index));
                 },
               );
             },
@@ -1058,12 +1084,41 @@ class _LandscapeButtons extends StatelessWidget {
         ];
 
         // When allowedTools leaves no function, an empty "Formula" region and
-        // its column would only waste space. Drop them, let the numbers fill
-        // the width, and keep any variables in a row above the numbers.
+        // its column would only waste space. Drop them and let the numbers fill
+        // the width. Any variables move to a narrow column, about one key
+        // wide, on the leading side, so the keyboard keeps its four-row height
+        // (a row above the numbers would make it taller in a short landscape
+        // window).
         if (functionRows.isEmpty) {
-          final numbersRow = Row(children: numbersAndSubmit);
-          if (variables.isEmpty) return numbersRow;
-          return column([ordered(100, variablesGroup), numbersRow]);
+          return Row(
+            children: [
+              if (variables.isNotEmpty) ...[
+                Expanded(
+                  flex: 48,
+                  child: SizedBox(
+                    height: columnHeight,
+                    child: ordered(
+                      100,
+                      semanticGroup(
+                        semantics.variablesGroupLabel,
+                        _Variables(
+                          controller: controller,
+                          variables: variables,
+                          style: style,
+                          semantics: semantics,
+                          fontSize: fontSize,
+                          keyHeight: keyHeight,
+                          direction: Axis.vertical,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: style.horizontalPadding),
+              ],
+              ...numbersAndSubmit,
+            ],
+          );
         }
 
         return Row(

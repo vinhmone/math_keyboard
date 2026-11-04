@@ -28,7 +28,8 @@
   `MathKeyboardSemantics.fallback` through `semanticsOf`), so a style-only theme no longer hides the
   semantics of an outer theme.
 * Fixed: in landscape, when `allowedTools` leaves no function, the keyboard no longer shows an empty
-  "Formula" region and column. The numbers fill the width, and any variables sit in a row above them.
+  "Formula" region and column. The numbers fill the width, and any variables sit in a narrow column
+  on the leading side, so the keyboard keeps its height.
 
 ## 1.0.1
 

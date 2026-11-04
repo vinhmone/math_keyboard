@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 import 'package:math_keyboard/src/custom_key_icons/custom_key_icons.dart';
@@ -154,8 +155,68 @@ void main() {
       expect(find.bySemanticsLabel('Variables'), findsOneWidget);
       expect(find.bySemanticsLabel('Numbers'), findsOneWidget);
 
+      // Screen readers reach the variables before the numbers.
+      final labels = <String>[];
+      void visit(SemanticsNode node) {
+        labels.add(node.label);
+        node
+            .debugListChildrenInOrder(DebugSemanticsDumpOrder.traversalOrder)
+            .forEach(visit);
+      }
+
+      visit(tester.getSemantics(find.bySemanticsLabel('Math keyboard')));
+      expect(labels, containsAll(['Variables', 'Numbers']));
+      expect(labels.indexOf('Variables'), lessThan(labels.indexOf('Numbers')));
+
       handle.dispose();
     });
+
+    // MathField always passes variables (π and e), so this is the case every
+    // landscape field with a function-free allowlist produces.
+    for (final size in const [Size(568, 320), Size(640, 360), Size(800, 400)]) {
+      testWidgets(
+        'a MathField keyboard keeps its height without functions at $size',
+        (tester) async {
+          tester.view.physicalSize = size;
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+
+          Future<double> keyboardHeight(Set<MathKeyboardTool>? tools) async {
+            await tester.pumpWidget(
+              MaterialApp(
+                home: Scaffold(
+                  body: MathField(
+                    key: UniqueKey(),
+                    autofocus: true,
+                    allowedTools: tools,
+                  ),
+                ),
+              ),
+            );
+            // Advance past the keyboard slide-in animation.
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 300));
+            expect(tester.takeException(), isNull);
+            return tester
+                .getSize(
+                  find
+                      .descendant(
+                        of: find.byType(MathKeyboard),
+                        matching: find.byType(DecoratedBox),
+                      )
+                      .first,
+                )
+                .height;
+          }
+
+          final withFunctions = await keyboardHeight(null);
+          final withoutFunctions = await keyboardHeight(const {});
+          expect(withoutFunctions, withFunctions);
+
+          await tester.pumpWidget(const SizedBox());
+        },
+      );
+    }
 
     testWidgets('shows only the allowed functions', (tester) async {
       final handle = await pumpLandscape(
