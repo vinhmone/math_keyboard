@@ -258,4 +258,130 @@ void main() {
       },
     );
   });
+
+  group('nested MathKeyboardTheme', () {
+    final outerStyle = MathKeyboardStyle.fallback.copyWith(
+      backgroundColor: const Color(0xFF123456),
+    );
+    final outerSemantics = MathKeyboardSemantics.fallback.copyWith(
+      submitLabel: 'Gửi',
+    );
+
+    testWidgets('a semantics-only inner theme keeps the outer style', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          MathKeyboardTheme(
+            style: outerStyle,
+            child: MathKeyboardTheme(
+              semantics: outerSemantics,
+              child: MathKeyboard(
+                controller: MathFieldEditingController(),
+                themeMode: ThemeMode.light,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final box = tester.widget<DecoratedBox>(
+        find
+            .descendant(
+              of: find.byType(MathKeyboard),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+      expect(
+        (box.decoration as BoxDecoration).color,
+        outerStyle.backgroundColor,
+      );
+    });
+
+    testWidgets('an inner theme keeps the outer semantics and separator', (
+      tester,
+    ) async {
+      late MathKeyboardSemantics semantics;
+      late DecimalSeparator separator;
+      late MathKeyboardStyle? style;
+      await tester.pumpWidget(
+        _wrap(
+          MathKeyboardTheme(
+            semantics: outerSemantics,
+            decimalSeparator: DecimalSeparator.comma,
+            child: MathKeyboardTheme(
+              style: outerStyle,
+              child: Builder(
+                builder: (context) {
+                  semantics = MathKeyboardTheme.semanticsOf(context);
+                  separator = MathKeyboardTheme.decimalSeparatorOf(context);
+                  style = MathKeyboardTheme.maybeStyleOf(context);
+                  return const SizedBox();
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(semantics, outerSemantics);
+      expect(separator, DecimalSeparator.comma);
+      expect(style, outerStyle);
+    });
+
+    testWidgets('the nearest theme that sets a value wins', (tester) async {
+      late DecimalSeparator separator;
+      late MathKeyboardStyle? style;
+      await tester.pumpWidget(
+        _wrap(
+          MathKeyboardTheme(
+            style: MathKeyboardStyle.fallback,
+            decimalSeparator: DecimalSeparator.comma,
+            child: MathKeyboardTheme(
+              style: outerStyle,
+              decimalSeparator: DecimalSeparator.dot,
+              child: Builder(
+                builder: (context) {
+                  separator = MathKeyboardTheme.decimalSeparatorOf(context);
+                  style = MathKeyboardTheme.maybeStyleOf(context);
+                  return const SizedBox();
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(separator, DecimalSeparator.dot);
+      expect(style, outerStyle);
+    });
+
+    testWidgets('a change to an outer theme rebuilds an inner dependent', (
+      tester,
+    ) async {
+      MathKeyboardStyle? style;
+      // One inner subtree instance, so the Builder rebuilds only through its
+      // dependency on the outer theme.
+      final inner = MathKeyboardTheme(
+        child: Builder(
+          builder: (context) {
+            style = MathKeyboardTheme.maybeStyleOf(context);
+            return const SizedBox();
+          },
+        ),
+      );
+
+      await tester.pumpWidget(
+        MathKeyboardTheme(style: MathKeyboardStyle.fallback, child: inner),
+      );
+      expect(style, MathKeyboardStyle.fallback);
+
+      await tester.pumpWidget(
+        MathKeyboardTheme(style: outerStyle, child: inner),
+      );
+      expect(style, outerStyle);
+    });
+  });
 }

@@ -21,6 +21,12 @@
 * Fixed: a `MathField` keyboard with `ThemeMode.system` follows a platform brightness change while
   it is open. The field forwards only an explicit or themed style, and the keyboard resolves
   `themeMode` in its own context (as in 1.0.1).
+* Fixed: nested `MathKeyboardTheme`s. A value that the nearest theme leaves `null` now comes from the
+  next theme up the tree that sets it, so a semantics-only theme inside a styled theme keeps the
+  outer style. This applies to `maybeStyleOf`, `styleOf`, `semanticsOf`, and `decimalSeparatorOf`.
+  **Breaking:** `MathKeyboardTheme.semantics` is now nullable (default `null`, still
+  `MathKeyboardSemantics.fallback` through `semanticsOf`), so a style-only theme no longer hides the
+  semantics of an outer theme.
 
 ## 1.0.1
 

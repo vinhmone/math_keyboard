@@ -439,12 +439,16 @@ class MathKeyboardStyle {
 /// while a keyboard is already open does not restyle that open keyboard — the
 /// change takes effect the next time the keyboard is shown. This is generally
 /// fine for the transient keyboard; close and reopen it to apply a live change.
+///
+/// Themes can nest, and each value that a theme leaves `null` comes from the
+/// next theme up the tree that sets it. So an inner theme that only localizes
+/// [semantics] keeps the [style] and [decimalSeparator] of an outer theme.
 class MathKeyboardTheme extends InheritedWidget {
   /// Constructs a [MathKeyboardTheme].
   const MathKeyboardTheme({
     super.key,
     this.style,
-    this.semantics = MathKeyboardSemantics.fallback,
+    this.semantics,
     this.decimalSeparator,
     required super.child,
   });
@@ -453,14 +457,16 @@ class MathKeyboardTheme extends InheritedWidget {
   ///
   /// Defaults to `null`, so a theme that only overrides [semantics] (for
   /// localization) need not supply a full style: descendant keyboards then
-  /// keep their light/dark look from their `themeMode`.
+  /// use the style of an outer theme, or keep their light/dark look from their
+  /// `themeMode` if no theme sets one.
   final MathKeyboardStyle? style;
 
   /// The screen-reader strings applied to descendant math keyboards.
   ///
-  /// Override this to localize the spoken announcements; defaults to the
-  /// English [MathKeyboardSemantics.fallback].
-  final MathKeyboardSemantics semantics;
+  /// Override this to localize the spoken announcements. Defaults to `null`,
+  /// which uses the semantics of an outer theme, or the English
+  /// [MathKeyboardSemantics.fallback] if no theme sets them.
+  final MathKeyboardSemantics? semantics;
 
   /// The decimal separator displayed by descendant math fields and keyboards.
   ///
@@ -468,40 +474,64 @@ class MathKeyboardTheme extends InheritedWidget {
   /// user-facing setting. It only affects what is displayed and announced; the
   /// TeX reported by `MathField.onChanged` keeps the canonical `.`.
   ///
-  /// Defaults to `null`, which resolves the separator from the ambient locale.
+  /// Defaults to `null`, which uses the separator of an outer theme, or the
+  /// separator of the ambient locale if no theme sets one.
   final DecimalSeparator? decimalSeparator;
 
-  /// Returns the [MathKeyboardStyle] from the nearest [MathKeyboardTheme], or
-  /// [MathKeyboardStyle.fallback] if there is none.
+  /// Returns the [MathKeyboardStyle] from the nearest [MathKeyboardTheme] that
+  /// sets one, or [MathKeyboardStyle.fallback] if there is none.
   static MathKeyboardStyle styleOf(BuildContext context) {
     return maybeStyleOf(context) ?? MathKeyboardStyle.fallback;
   }
 
-  /// Returns the [MathKeyboardStyle] from the nearest [MathKeyboardTheme], or
-  /// `null` if there is none or it sets no style.
+  /// Returns the [MathKeyboardStyle] from the nearest [MathKeyboardTheme] that
+  /// sets one, or `null` if no theme above [context] sets a style.
   ///
+  /// A theme with a `null` style does not hide the style of an outer theme.
   /// Keyboards use this so that, without a themed style, they fall back to
   /// their `themeMode` rather than to [MathKeyboardStyle.fallback].
   static MathKeyboardStyle? maybeStyleOf(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<MathKeyboardTheme>()
-        ?.style;
+    return _nearest(context, (theme) => theme.style);
   }
 
-  /// Returns the [MathKeyboardSemantics] from the nearest [MathKeyboardTheme],
-  /// or [MathKeyboardSemantics.fallback] if there is none.
+  /// Returns the [MathKeyboardSemantics] from the nearest [MathKeyboardTheme]
+  /// that sets them, or [MathKeyboardSemantics.fallback] if there is none.
   static MathKeyboardSemantics semanticsOf(BuildContext context) {
-    final theme = context
-        .dependOnInheritedWidgetOfExactType<MathKeyboardTheme>();
-    return theme?.semantics ?? MathKeyboardSemantics.fallback;
+    return _nearest(context, (theme) => theme.semantics) ??
+        MathKeyboardSemantics.fallback;
   }
 
-  /// Returns the decimal separator from the nearest [MathKeyboardTheme], or the
-  /// separator of the current locale if there is none.
+  /// Returns the decimal separator from the nearest [MathKeyboardTheme] that
+  /// sets one, or the separator of the current locale if there is none.
   static DecimalSeparator decimalSeparatorOf(BuildContext context) {
-    final theme = context
-        .dependOnInheritedWidgetOfExactType<MathKeyboardTheme>();
-    return theme?.decimalSeparator ?? DecimalSeparator.of(context);
+    return _nearest(context, (theme) => theme.decimalSeparator) ??
+        DecimalSeparator.of(context);
+  }
+
+  /// Walks the [MathKeyboardTheme]s above [context], nearest first, and returns
+  /// the first non-null value that [select] reads, or `null` if none sets one.
+  ///
+  /// [context] depends on every theme it visits, so a change to any of them
+  /// rebuilds it.
+  static T? _nearest<T>(
+    BuildContext context,
+    T? Function(MathKeyboardTheme theme) select,
+  ) {
+    var element = context
+        .getElementForInheritedWidgetOfExactType<MathKeyboardTheme>();
+    while (element != null) {
+      final theme = context.dependOnInheritedElement(element);
+      final value = select(theme as MathKeyboardTheme);
+      if (value != null) return value;
+      InheritedElement? outer;
+      element.visitAncestorElements((ancestor) {
+        outer = ancestor
+            .getElementForInheritedWidgetOfExactType<MathKeyboardTheme>();
+        return false;
+      });
+      element = outer;
+    }
+    return null;
   }
 
   @override
