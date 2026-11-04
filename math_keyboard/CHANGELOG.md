@@ -30,6 +30,10 @@
   **Breaking:** `MathKeyboardTheme.semantics` is now nullable (default `null`, still
   `MathKeyboardSemantics.fallback` through `semanticsOf`), so a style-only theme no longer hides the
   semantics of an outer theme.
+  **Breaking:** for the same reason, an inner `MathKeyboardTheme(style: null)` or
+  `decimalSeparator: null` no longer clears an outer value for its subtree (before, the subtree fell
+  back to `themeMode` or the locale). To override an outer value, pass an explicit one, for example
+  `MathKeyboardStyle.resolve(context, ThemeMode.light)` or `DecimalSeparator.of(context)`.
 * Fixed: in landscape, when `allowedTools` leaves no function, the keyboard no longer shows an empty
   "Formula" region and column. The numbers fill the width, and any variables sit in a narrow column
   on the leading side, so the keyboard keeps its height.

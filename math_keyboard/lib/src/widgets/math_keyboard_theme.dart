@@ -439,6 +439,16 @@ class MathKeyboardStyle {
 /// Themes can nest, and each value that a theme leaves `null` comes from the
 /// next theme up the tree that sets it. So an inner theme that only localizes
 /// [semantics] keeps the [style] and [decimalSeparator] of an outer theme.
+///
+/// For the same reason, an inner theme cannot clear an outer value by passing
+/// `null`. To override it for a subtree, set an explicit value instead:
+///
+/// * For the light/dark look, pass a style such as
+///   `MathKeyboardStyle.resolve(context, ThemeMode.light)` to the inner theme
+///   or to the field. An explicit style does not follow a later platform
+///   brightness change, so for [ThemeMode.system], move the outer theme so it
+///   does not wrap that subtree.
+/// * For the locale separator, pass `DecimalSeparator.of(context)`.
 class MathKeyboardTheme extends InheritedWidget {
   /// Constructs a [MathKeyboardTheme].
   const MathKeyboardTheme({
