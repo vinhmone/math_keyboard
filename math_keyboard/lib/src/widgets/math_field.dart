@@ -135,7 +135,10 @@ class MathField extends StatefulWidget {
   /// The theme mode that controls the keyboard's light/dark appearance.
   ///
   /// Used only when neither [style] nor a [MathKeyboardTheme] style is given.
-  /// Defaults to [ThemeMode.system], which follows the platform brightness.
+  /// Defaults to [ThemeMode.system], which follows the platform brightness,
+  /// also while the keyboard is open. The keyboard resolves the mode in its
+  /// overlay, so the submit key takes the [ColorScheme.secondary] of the
+  /// [Theme] above the [Overlay].
   final ThemeMode themeMode;
 
   /// The set of math tools (content buttons) that the keyboard is allowed to
@@ -551,10 +554,10 @@ class MathFieldState extends State<MathField> with TickerProviderStateMixin {
             // state.
             insetsState: MathKeyboardViewInsetsState.of(this.context),
             slideAnimation: _keyboardSlideController,
-            style:
-                widget.style ??
-                MathKeyboardTheme.maybeStyleOf(this.context) ??
-                MathKeyboardStyle.resolve(this.context, widget.themeMode),
+            // Only an explicit or themed style is forwarded. Without one, the
+            // keyboard resolves [themeMode] in its own (overlay) context, so it
+            // rebuilds when the platform brightness changes while it is open.
+            style: widget.style ?? MathKeyboardTheme.maybeStyleOf(this.context),
             themeMode: widget.themeMode,
             semantics:
                 widget.semantics ?? MathKeyboardTheme.semanticsOf(this.context),

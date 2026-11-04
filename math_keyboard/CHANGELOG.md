@@ -18,6 +18,9 @@
   and the number-only input validation.
 * Kept the fork's newer dependencies (`math_expressions` ^3.1.0, `petitparser` ^7.0.2,
   `flutter_lints`).
+* Fixed: a `MathField` keyboard with `ThemeMode.system` follows a platform brightness change while
+  it is open. The field forwards only an explicit or themed style, and the keyboard resolves
+  `themeMode` in its own context (as in 1.0.1).
 
 ## 1.0.1
 

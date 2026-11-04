@@ -227,5 +227,35 @@ void main() {
 
       expect(backgroundOf(tester), MathKeyboardColors.light().background);
     });
+
+    testWidgets(
+      'an open MathField keyboard follows a live platform brightness change',
+      (tester) async {
+        tester.platformDispatcher.platformBrightnessTestValue =
+            Brightness.light;
+        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: MathField(autofocus: true, themeMode: ThemeMode.system),
+            ),
+          ),
+        );
+        // Advance past the keyboard slide-in animation. (No pumpAndSettle: the
+        // field's cursor blinks forever.)
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(backgroundOf(tester), MathKeyboardColors.light().background);
+
+        // The OS switches to dark while the keyboard is open.
+        tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+        await tester.pump();
+
+        expect(backgroundOf(tester), MathKeyboardColors.dark().background);
+
+        await tester.pumpWidget(const SizedBox());
+      },
+    );
   });
 }
