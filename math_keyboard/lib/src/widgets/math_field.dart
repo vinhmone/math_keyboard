@@ -37,7 +37,17 @@ class MathField extends StatefulWidget {
     this.semanticsValue,
     this.decimalSeparator,
     this.themeMode = ThemeMode.system,
+    this.fontSize,
   });
+
+  /// The font size of the typeset math in the field.
+  ///
+  /// When `null` (the default), [MathOptions.defaultFontSize] is used. Set it
+  /// to line the field up with surrounding text: the field passes explicit
+  /// [MathOptions] to its [Math] widget, so the ambient text scale is *not*
+  /// applied for you — include it in this value if you want the field to
+  /// follow it.
+  final double? fontSize;
 
   /// The controller for the math field.
   ///
@@ -807,6 +817,7 @@ class MathFieldState extends State<MathField> with TickerProviderStateMixin {
                   scrollController: _scrollController,
                   cursorOpacity: _cursorOpacity,
                   hasFocus: _focusNode.hasFocus,
+                  fontSize: widget.fontSize,
                   // Route the accessibility activation (screen-reader
                   // double-tap) through the same open logic as a pointer tap,
                   // so the keyboard can be opened without a pointer.
@@ -842,7 +853,11 @@ class _FieldPreview extends StatelessWidget {
     required this.semanticsValue,
     required this.decimalSeparator,
     required this.onTap,
+    this.fontSize,
   });
+
+  /// See [MathField.fontSize].
+  final double? fontSize;
 
   /// The controller for the math field.
   final MathFieldEditingController controller;
@@ -957,7 +972,7 @@ class _FieldPreview extends StatelessWidget {
                 child: Math.tex(
                   tex,
                   options: MathOptions(
-                    fontSize: MathOptions.defaultFontSize,
+                    fontSize: fontSize ?? MathOptions.defaultFontSize,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),

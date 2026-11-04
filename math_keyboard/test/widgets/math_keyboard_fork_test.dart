@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 import 'package:math_keyboard/src/custom_key_icons/custom_key_icons.dart';
@@ -608,6 +609,43 @@ void main() {
         MathKeyboardTheme(style: outerStyle, child: inner),
       );
       expect(style, outerStyle);
+    });
+  });
+
+  group('MathField fontSize', () {
+    // Pin a portrait window, as in the allowedTools group above.
+    setUp(() {
+      final view =
+          TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
+      view.physicalSize = const Size(400, 800);
+      view.devicePixelRatio = 1;
+    });
+    tearDown(() {
+      final view =
+          TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
+      view.resetPhysicalSize();
+      view.resetDevicePixelRatio();
+    });
+
+    double renderedFontSize(WidgetTester tester) =>
+        tester.widget<Math>(find.byType(Math)).options!.fontSize;
+
+    testWidgets('defaults to MathOptions.defaultFontSize', (tester) async {
+      await tester.pumpWidget(_wrap(const MathField()));
+
+      expect(renderedFontSize(tester), MathOptions.defaultFontSize);
+    });
+
+    testWidgets('renders the math at the given font size', (tester) async {
+      await tester.pumpWidget(_wrap(const MathField(fontSize: 18)));
+
+      expect(renderedFontSize(tester), 18);
+    });
+
+    testWidgets('MathFormField passes the font size through', (tester) async {
+      await tester.pumpWidget(_wrap(MathFormField(fontSize: 18)));
+
+      expect(renderedFontSize(tester), 18);
     });
   });
 }

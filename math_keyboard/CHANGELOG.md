@@ -1,3 +1,8 @@
+## 1.2.0
+
+* Added a `fontSize` parameter to `MathField` and `MathFormField` so the typeset math can match the
+  surrounding text. It defaults to `MathOptions.defaultFontSize`, so existing fields are unchanged.
+
 ## 1.1.0
 
 * Synced with upstream `simpleclub/math_keyboard` 0.4.0: the redesigned keyboard
