@@ -399,6 +399,90 @@ void main() {
         await tester.pumpWidget(const SizedBox());
       },
     );
+
+    group('an open MathField keyboard follows a widget change', () {
+      Future<void> pumpField(
+        WidgetTester tester, {
+        required ThemeMode themeMode,
+        MathKeyboardStyle? style,
+      }) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: MathField(
+                autofocus: true,
+                themeMode: themeMode,
+                style: style,
+              ),
+            ),
+          ),
+        );
+      }
+
+      testWidgets('to a new themeMode', (tester) async {
+        await pumpField(tester, themeMode: ThemeMode.light);
+        // Advance past the keyboard slide-in animation.
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(backgroundOf(tester), MathKeyboardColors.light().background);
+
+        await pumpField(tester, themeMode: ThemeMode.dark);
+        await tester.pump();
+
+        expect(backgroundOf(tester), MathKeyboardColors.dark().background);
+
+        await tester.pumpWidget(const SizedBox());
+      });
+
+      testWidgets('to a new style', (tester) async {
+        await pumpField(tester, themeMode: ThemeMode.light);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        final style = MathKeyboardStyle.fallback.copyWith(
+          backgroundColor: const Color(0xFF123456),
+        );
+        await pumpField(tester, themeMode: ThemeMode.light, style: style);
+        await tester.pump();
+
+        expect(backgroundOf(tester), style.backgroundColor);
+
+        await tester.pumpWidget(const SizedBox());
+      });
+
+      testWidgets('to a new MathKeyboardTheme style', (tester) async {
+        Future<void> pumpThemed(MathKeyboardStyle style) {
+          return tester.pumpWidget(
+            MaterialApp(
+              home: Scaffold(
+                body: MathKeyboardTheme(
+                  style: style,
+                  child: MathField(autofocus: true),
+                ),
+              ),
+            ),
+          );
+        }
+
+        await pumpThemed(MathKeyboardStyle.fallback);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(
+          backgroundOf(tester),
+          MathKeyboardStyle.fallback.backgroundColor,
+        );
+
+        final style = MathKeyboardStyle.fallback.copyWith(
+          backgroundColor: const Color(0xFF123456),
+        );
+        await pumpThemed(style);
+        await tester.pump();
+
+        expect(backgroundOf(tester), style.backgroundColor);
+
+        await tester.pumpWidget(const SizedBox());
+      });
+    });
   });
 
   group('nested MathKeyboardTheme', () {

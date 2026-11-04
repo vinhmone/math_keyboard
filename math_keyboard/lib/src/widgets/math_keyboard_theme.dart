@@ -431,14 +431,10 @@ class MathKeyboardStyle {
 /// separator to the [MathKeyboard]s below it in the tree.
 ///
 /// A [MathField] resolves the style, semantics, and decimal separator from the
-/// nearest [MathKeyboardTheme] at the time it opens its keyboard and forwards
-/// them into the overlay, because the overlay is built in a separate context
-/// that cannot read this ancestor.
-///
-/// Because the values are captured when the keyboard opens, changing the theme
-/// while a keyboard is already open does not restyle that open keyboard — the
-/// change takes effect the next time the keyboard is shown. This is generally
-/// fine for the transient keyboard; close and reopen it to apply a live change.
+/// nearest [MathKeyboardTheme] and forwards them into the overlay, because the
+/// overlay is built in a separate context that cannot read this ancestor. When
+/// the theme changes while the keyboard is open, the field rebuilds the
+/// keyboard with the new values.
 ///
 /// Themes can nest, and each value that a theme leaves `null` comes from the
 /// next theme up the tree that sets it. So an inner theme that only localizes

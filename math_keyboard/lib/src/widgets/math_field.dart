@@ -268,11 +268,13 @@ class MathFieldState extends State<MathField> with TickerProviderStateMixin {
     _decimalSeparator =
         widget.decimalSeparator ??
         MathKeyboardTheme.decimalSeparatorOf(context);
+    _rebuildKeyboard();
   }
 
   @override
   void didUpdateWidget(MathField oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _rebuildKeyboard();
 
     if (oldWidget.decimalSeparator != widget.decimalSeparator) {
       _decimalSeparator =
@@ -572,6 +574,33 @@ class MathFieldState extends State<MathField> with TickerProviderStateMixin {
     );
 
     Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  var _keyboardRebuildScheduled = false;
+
+  /// Rebuilds the open keyboard so it picks up a new widget configuration
+  /// (e.g. [MathField.style] or [MathField.themeMode]) or a changed dependency
+  /// of the field context (e.g. a [MathKeyboardTheme] or the locale).
+  ///
+  /// The overlay builder reads both, but the overlay is not a descendant of
+  /// the field, so it does not rebuild with the field on its own.
+  void _rebuildKeyboard() {
+    if (_overlayEntry == null) return;
+    // didUpdateWidget and didChangeDependencies run during the build phase,
+    // where marking the overlay (outside this subtree) dirty is not allowed.
+    // Defer to after the frame, like Flutter's text selection overlay.
+    if (SchedulerBinding.instance.schedulerPhase !=
+        SchedulerPhase.persistentCallbacks) {
+      _overlayEntry!.markNeedsBuild();
+      return;
+    }
+    if (_keyboardRebuildScheduled) return;
+    _keyboardRebuildScheduled = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _keyboardRebuildScheduled = false;
+      if (!mounted) return;
+      _overlayEntry?.markNeedsBuild();
+    }, debugLabel: 'MathField.rebuildKeyboard');
   }
 
   /// Launches keyboard slide animation in reversed direction.
